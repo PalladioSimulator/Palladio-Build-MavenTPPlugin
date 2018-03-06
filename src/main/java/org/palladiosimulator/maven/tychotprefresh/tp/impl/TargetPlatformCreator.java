@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -41,10 +42,11 @@ public class TargetPlatformCreator implements ITargetPlatformCreator, ArtefactCr
 	protected RepositorySystem repositorySystem;
 	
 	@Override
-	public TargetPlatformFile createMergedTargetPlatform(Collection<String> targetPlatformsToConsider, ArtifactRepository localRepository,
+	public TargetPlatformFile createMergedTargetPlatform(Collection<String> targetPlatformsToConsider,
+			Collection<String> targetPlatformFilters, ArtifactRepository localRepository,
 			List<ArtifactRepository> remoteRepositories) throws MavenExecutionException {
 		Collection<String> tpFilePaths = findTargetPlatformDefinitionFiles(targetPlatformsToConsider, localRepository, remoteRepositories);
-		return createMergedTargetPlatformDefinition(tpFilePaths);
+		return createMergedTargetPlatformDefinition(tpFilePaths, targetPlatformFilters);
 	}
 	
 	private Collection<String> findTargetPlatformDefinitionFiles(Collection<String> targetPlatformsToConsider, ArtifactRepository localRepository,
@@ -85,7 +87,7 @@ public class TargetPlatformCreator implements ITargetPlatformCreator, ArtefactCr
 		return result.getArtifacts().stream().findFirst();
 	}
 	
-	private TargetPlatformFile createMergedTargetPlatformDefinition(Collection<String> tpFilePaths)
+	private TargetPlatformFile createMergedTargetPlatformDefinition(Collection<String> tpFilePaths, Collection<String> targetPlatformFilters)
 			throws MavenExecutionException {
 		Collection<TargetPlatformFile> targetPlatformFiles = new ArrayList<>();
 		for (String tpFilePath : tpFilePaths) {
@@ -99,9 +101,29 @@ public class TargetPlatformCreator implements ITargetPlatformCreator, ArtefactCr
 				log.warn("Error in processing " + tpFilePath + ". Skipping entry.", e);
 			}
 		}
+		targetPlatformFiles = filterTargetPlatformFiles(targetPlatformFiles, targetPlatformFilters);
 		return merge(targetPlatformFiles);
 	}
 	
+	private Collection<TargetPlatformFile> filterTargetPlatformFiles(
+			Collection<TargetPlatformFile> targetPlatformFiles, Collection<String> targetPlatformFilters) {
+		return targetPlatformFiles.stream().map(tpFile -> filterTargetPlatformFile(tpFile, targetPlatformFilters)).collect(Collectors.toList());
+	}
+	
+	private TargetPlatformFile filterTargetPlatformFile(TargetPlatformFile tpFile, Collection<String> targetPlatformFilters) {
+		Collection<Location> filteredLocations = new ArrayList<>();
+		for (Location location : tpFile.getLocations()) {
+			if (StringUtils.isBlank(location.getFilter())) {
+				filteredLocations.add(new Location(location.getRepositoryLocation(), location.getUnits()));
+			} else if (targetPlatformFilters.contains(location.getFilter())) {
+				filteredLocations.add(new Location(location.getRepositoryLocation(), location.getUnits()));
+			} else {
+				log.debug("Filtered location entry " + location.getRepositoryLocation() + " with filter keyword " + location.getFilter());
+			}
+		}
+		return new TargetPlatformFile(filteredLocations);
+	}
+
 	private static TargetPlatformFile merge(Collection<TargetPlatformFile> files) {
 		Collection<Location> locations = files.stream().map(TargetPlatformFile::getLocations)
 				.flatMap(Collection::stream).map(TargetPlatformCreator::normalizeURL)

@@ -67,7 +67,7 @@ public class TargetPlatformAttacher implements ITargetPlatformAttacher, Artefact
 			File pomFile = new File(tempDir, "pom.xml");
 			mp.setFile(pomFile);
 
-			File tpFile = new File(tempDir, coordinates.getClassifier() + "." + TARGET_PLATFORM_FILE_EXTENSION);
+			File tpFile = new File(tempDir, coordinates.getClassifier() + "." + coordinates.getType());
 			FileUtils.write(tpFile, targetPlatformDefinitionContent, StandardCharsets.UTF_8);
 			Artifact tpArtifact = createTargetArtifact(repositorySystem, coordinates);
 			tpArtifact.setFile(tpFile);

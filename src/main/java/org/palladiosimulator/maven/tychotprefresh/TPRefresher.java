@@ -52,7 +52,7 @@ public class TPRefresher {
 
 		log.info("Merging available target platform definitions.");
 		TargetPlatformFile mergedTargetPlatform = targetPlatformCreator.createMergedTargetPlatform(
-				properties.getTpTargetLocations(), session.getLocalRepository(),
+				properties.getTpTargetLocations(), properties.getTpFilters(), session.getLocalRepository(),
 				project.getRemoteArtifactRepositories());
 
 		log.info("Updating target platform definitions.");

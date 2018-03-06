@@ -6,11 +6,9 @@ import org.palladiosimulator.maven.tychotprefresh.util.TPCoordinates;
 
 public interface ArtefactCreationMixin {
 
-	public static final String TARGET_PLATFORM_FILE_EXTENSION = "target";
-	
 	default Artifact createTargetArtifact(RepositorySystem repositorySystem, TPCoordinates coordinates) {
 		return repositorySystem.createArtifactWithClassifier(coordinates.getGroupId(), coordinates.getArtifactId(),
-				coordinates.getVersion(), TARGET_PLATFORM_FILE_EXTENSION, coordinates.getClassifier());
+				coordinates.getVersion(), coordinates.getType(), coordinates.getClassifier());
 	}
 	
 }

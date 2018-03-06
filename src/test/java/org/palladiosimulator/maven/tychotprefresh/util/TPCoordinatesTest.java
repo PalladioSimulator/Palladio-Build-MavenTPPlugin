@@ -17,8 +17,8 @@ public class TPCoordinatesTest {
 	
 	@Test
 	public void testParseWorksOnValidEntry() {
-		TPCoordinates expected = new TPCoordinates("a", "b", "c", "d");
-		TPCoordinates actual = TPCoordinates.parse("a:b:c:d").get();
+		TPCoordinates expected = new TPCoordinates("a", "b", "c", "d", "e");
+		TPCoordinates actual = TPCoordinates.parse("a:b:c:d:e").get();
 		assertThat(actual, is(equalTo(expected)));
 	}
 	

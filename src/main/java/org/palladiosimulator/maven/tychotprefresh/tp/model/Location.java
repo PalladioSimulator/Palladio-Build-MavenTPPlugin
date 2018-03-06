@@ -6,10 +6,16 @@ public class Location {
 
 	private String repositoryLocation;
 	private Collection<Unit> units;
+	private String filter;
 
 	public Location(String repositoryLocation, Collection<Unit> units) {
+		this(repositoryLocation, null, units);
+	}
+	
+	public Location(String repositoryLocation, String filter, Collection<Unit> units) {
 		super();
 		this.repositoryLocation = repositoryLocation;
+		this.filter = filter;
 		this.units = units;
 	}
 
@@ -19,6 +25,14 @@ public class Location {
 
 	public void setRepositoryLocation(String repositoryLocation) {
 		this.repositoryLocation = repositoryLocation;
+	}
+
+	public String getFilter() {
+		return filter;
+	}
+
+	public void setFilter(String filter) {
+		this.filter = filter;
 	}
 
 	public Collection<Unit> getUnits() {

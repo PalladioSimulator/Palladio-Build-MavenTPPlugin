@@ -1,8 +1,9 @@
 package org.palladiosimulator.maven.tychotprefresh.tp.parser;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -22,6 +23,25 @@ public class LocationParserTest extends XMLHandlingTestBase {
 		Location expected = new Location("http://www.example.org", Arrays.asList(new Unit("abc", "def")));
 		
 		Element location = doc.createElement("location");
+		Element repository = doc.createElement("repository");
+		location.appendChild(repository);
+		repository.setAttribute("location", expected.getRepositoryLocation());
+		Element unit = doc.createElement("unit");
+		location.appendChild(unit);
+		unit.setAttribute("id", expected.getUnits().iterator().next().getId());
+		unit.setAttribute("version", expected.getUnits().iterator().next().getVersion());
+		
+		Location actual = LocationParser.parse(location).get();
+		
+		assertThat(actual, is(equalTo(expected)));
+	}
+	
+	@Test
+	public void testParseFilteredelement() {
+		Location expected = new Location("http://www.example.org", "test", Arrays.asList(new Unit("abc", "def")));
+		
+		Element location = doc.createElement("location");
+		location.setAttribute("filter", "test");
 		Element repository = doc.createElement("repository");
 		location.appendChild(repository);
 		repository.setAttribute("location", expected.getRepositoryLocation());
@@ -65,7 +85,7 @@ public class LocationParserTest extends XMLHandlingTestBase {
 	
 	@Test
 	public void testSerializeValidElement() {
-		Location input = new Location("http://www.example.org", Arrays.asList(new Unit("abc", "def")));
+		Location input = new Location("http://www.example.org", "test", Arrays.asList(new Unit("abc", "def")));
 		Node actual = LocationParser.create(doc, input);
 		
 		assertThat(actual, is(instanceOf(Element.class)));
@@ -76,6 +96,7 @@ public class LocationParserTest extends XMLHandlingTestBase {
 		assertThat(actualElement.getAttribute("includeMode"), is(equalTo("slicer")));
 		assertThat(actualElement.getAttribute("includeSource"), is(equalTo("false")));
 		assertThat(actualElement.getAttribute("type"), is(equalTo("InstallableUnit")));
+		assertThat(actualElement.getAttribute("filter"), isEmptyOrNullString());
 		assertThat(actual.getChildNodes().getLength(), is(2));
 		for (int i = 0; i < actual.getChildNodes().getLength(); ++i) {
 			Element currentElement = (Element)actual.getChildNodes().item(i);

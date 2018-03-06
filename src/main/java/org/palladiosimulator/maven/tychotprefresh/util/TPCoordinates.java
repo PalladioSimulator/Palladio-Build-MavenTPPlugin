@@ -9,21 +9,24 @@ public class TPCoordinates {
 	private static final String ARTIFACT_ID = "artifactId";
 	private static final String VERSION_ID = "version";
 	private static final String CLASSIFIER_ID = "classifier";
+	private static final String TYPE_ID = "type";
 	private static final Pattern PARSE_PATTERN = Pattern
-			.compile(String.format("(?<%s>[^:]+):(?<%s>[^:]+):(?<%s>[^:]+):(?<%s>[^:]+)", GROUP_ID, ARTIFACT_ID,
-					VERSION_ID, CLASSIFIER_ID));
+			.compile(String.format("(?<%s>[^:]+):(?<%s>[^:]+):(?<%s>[^:]+):(?<%s>[^:]+):(?<%s>[^:]+)", GROUP_ID, ARTIFACT_ID,
+					VERSION_ID, CLASSIFIER_ID, TYPE_ID));
 	
 	private final String groupId;
 	private final String artifactId;
 	private final String version;
 	private final String classifier;
+	private final String type;
 
-	public TPCoordinates(String groupId, String artifactId, String version, String classifier) {
+	public TPCoordinates(String groupId, String artifactId, String version, String classifier, String type) {
 		super();
 		this.groupId = groupId;
 		this.artifactId = artifactId;
 		this.version = version;
 		this.classifier = classifier;
+		this.type = type;
 	}
 
 	public String getGroupId() {
@@ -42,6 +45,10 @@ public class TPCoordinates {
 		return classifier;
 	}
 
+	public String getType() {
+		return type;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -49,6 +56,7 @@ public class TPCoordinates {
 		result = prime * result + ((artifactId == null) ? 0 : artifactId.hashCode());
 		result = prime * result + ((classifier == null) ? 0 : classifier.hashCode());
 		result = prime * result + ((groupId == null) ? 0 : groupId.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + ((version == null) ? 0 : version.hashCode());
 		return result;
 	}
@@ -77,6 +85,11 @@ public class TPCoordinates {
 				return false;
 		} else if (!groupId.equals(other.groupId))
 			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
 		if (version == null) {
 			if (other.version != null)
 				return false;
@@ -87,7 +100,7 @@ public class TPCoordinates {
 
 	@Override
 	public String toString() {
-		return String.format("%s:%s:%s:%s", groupId, artifactId, version, classifier);
+		return String.format("%s:%s:%s:%s:%s", groupId, artifactId, version, classifier, type);
 	}
 
 	public static Optional<TPCoordinates> parse(String coordinateString) {
@@ -96,7 +109,7 @@ public class TPCoordinates {
 			return Optional.empty();
 		}
 		return Optional.of(new TPCoordinates(matcher.group(GROUP_ID), matcher.group(ARTIFACT_ID),
-				matcher.group(VERSION_ID), matcher.group(CLASSIFIER_ID)));
+				matcher.group(VERSION_ID), matcher.group(CLASSIFIER_ID), matcher.group(TYPE_ID)));
 	}
 	
 	public static boolean isValid(String coordinateString) {

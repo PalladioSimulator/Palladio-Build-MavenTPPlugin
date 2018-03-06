@@ -14,6 +14,7 @@ public class PropertyGatherer {
 
 	private static final String PROPERTY_PREFIX_TP_LOCATIONS = String.format("%s.%s", PROPERTY_PREFIX, "tplocation");
 	private static final String PROPERTY_PREFIX_UPDATE_LOCATIONS = String.format("%s.%s", PROPERTY_PREFIX, "tprefresh");
+	private static final String PROPERTY_PREFIX_FILTERS = String.format("%s.%s", PROPERTY_PREFIX, "filter");
 
 	private static final String PROPERTY_PREFIX_TP_PROJECT = String.format("%s.%s", PROPERTY_PREFIX, "tpproject");
 	private static final String PROPERTY_KEY_TP_PROJECT_GROUPID = String.format("%s.%s", PROPERTY_PREFIX_TP_PROJECT,
@@ -24,14 +25,18 @@ public class PropertyGatherer {
 			"version");
 	private static final String PROPERTY_KEY_TP_PROJECT_CLASSIFIER = String.format("%s.%s", PROPERTY_PREFIX_TP_PROJECT,
 			"classifier");
+	private static final String PROPERTY_KEY_TP_PROJECT_TYPE = String.format("%s.%s", PROPERTY_PREFIX_TP_PROJECT,
+			"type");
 
 	private final Collection<String> tpTargetLocations;
 	private final Collection<Pattern> tpUpdateLocations;
+	private final Collection<String> tpFilters;
 	private final TPCoordinates tpProjectCoordinates;
 
 	public PropertyGatherer(MavenProject project) {
 		this.tpTargetLocations = readTPTargetLocations(project);
 		this.tpUpdateLocations = readTPUpdateLocations(project);
+		this.tpFilters = readTPFilters(project);
 		this.tpProjectCoordinates = readTPProjectCoordinates(project);
 	}
 
@@ -41,6 +46,10 @@ public class PropertyGatherer {
 
 	public Collection<Pattern> getTpUpdateLocations() {
 		return tpUpdateLocations;
+	}
+
+	public Collection<String> getTpFilters() {
+		return tpFilters;
 	}
 
 	public TPCoordinates getTpProjectCoordinates() {
@@ -71,12 +80,17 @@ public class PropertyGatherer {
 				.collect(Collectors.toList());
 	}
 
+	private Collection<String> readTPFilters(MavenProject project) {
+		return getPropertiesWithPrefix(project, PROPERTY_PREFIX_FILTERS);
+	}
+
 	private static TPCoordinates readTPProjectCoordinates(MavenProject project) {
 		String groupId = readMandatoryProperty(project, PROPERTY_KEY_TP_PROJECT_GROUPID);
 		String artifactId = readMandatoryProperty(project, PROPERTY_KEY_TP_PROJECT_ARTIFACTID);
 		String version = readMandatoryProperty(project, PROPERTY_KEY_TP_PROJECT_VERSION);
 		String classifier = readMandatoryProperty(project, PROPERTY_KEY_TP_PROJECT_CLASSIFIER);
-		return new TPCoordinates(groupId, artifactId, version, classifier);
+		String type = readMandatoryProperty(project, PROPERTY_KEY_TP_PROJECT_TYPE);
+		return new TPCoordinates(groupId, artifactId, version, classifier, type);
 	}
 
 	private static String readMandatoryProperty(MavenProject project, String key) {

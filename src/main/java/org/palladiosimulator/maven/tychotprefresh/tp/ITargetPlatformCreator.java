@@ -9,6 +9,6 @@ import org.palladiosimulator.maven.tychotprefresh.tp.model.TargetPlatformFile;
 
 public interface ITargetPlatformCreator {
 
-	TargetPlatformFile createMergedTargetPlatform(Collection<String> targetPlatformsToConsider, ArtifactRepository localRepository, List<ArtifactRepository> remoteRepositories) throws MavenExecutionException;
+	TargetPlatformFile createMergedTargetPlatform(Collection<String> targetPlatformsToConsider, Collection<String> targetPlatformFilters, ArtifactRepository localRepository, List<ArtifactRepository> remoteRepositories) throws MavenExecutionException;
 
 }
