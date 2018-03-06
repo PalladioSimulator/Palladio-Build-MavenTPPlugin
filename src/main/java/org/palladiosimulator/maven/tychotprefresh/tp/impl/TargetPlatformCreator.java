@@ -19,8 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -29,6 +27,7 @@ import org.palladiosimulator.maven.tychotprefresh.tp.ITargetPlatformCreator;
 import org.palladiosimulator.maven.tychotprefresh.tp.model.Location;
 import org.palladiosimulator.maven.tychotprefresh.tp.model.TargetPlatformFile;
 import org.palladiosimulator.maven.tychotprefresh.tp.parser.TargetPlatformParser;
+import org.palladiosimulator.maven.tychotprefresh.util.IArtifactResolver;
 import org.palladiosimulator.maven.tychotprefresh.util.TPCoordinates;
 import org.xml.sax.SAXException;
 
@@ -37,6 +36,9 @@ public class TargetPlatformCreator implements ITargetPlatformCreator, ArtefactCr
 	
 	@Requirement
 	private Logger log;
+	
+	@Requirement
+	private IArtifactResolver artifactResolver;
 
 	@Requirement
 	protected RepositorySystem repositorySystem;
@@ -53,8 +55,7 @@ public class TargetPlatformCreator implements ITargetPlatformCreator, ArtefactCr
 			List<ArtifactRepository> remoteRepositories) {
 
 		Collection<String> resolvedTPPaths = targetPlatformsToConsider.stream().map(TPCoordinates::parse)
-				.filter(Optional::isPresent).map(Optional::get).map(this::createTargetArtifact)
-				.map(a -> resolveArtifact(a, localRepository, remoteRepositories))
+				.filter(Optional::isPresent).map(Optional::get).map(coordinates -> resolveArtifact(coordinates, localRepository, remoteRepositories))
 				.filter(Optional::isPresent).map(Optional::get).map(Artifact::getFile).filter(Objects::nonNull)
 				.map(File::getAbsolutePath).collect(Collectors.toList());
 
@@ -70,21 +71,13 @@ public class TargetPlatformCreator implements ITargetPlatformCreator, ArtefactCr
 		return targetPlatformFilePaths;
 	}
 	
-	private Artifact createTargetArtifact(TPCoordinates coordinates) {
-		return createTargetArtifact(repositorySystem, coordinates);
-	}
-	
-	private Optional<Artifact> resolveArtifact(Artifact artifact, ArtifactRepository localRepository,
+	private Optional<Artifact> resolveArtifact(TPCoordinates coordinates, ArtifactRepository localRepository,
 			List<ArtifactRepository> remoteRepositories) {
-		ArtifactResolutionRequest request = new ArtifactResolutionRequest();
-		request.setArtifact(artifact);
-		request.setLocalRepository(localRepository);
-		request.setRemoteRepositories(remoteRepositories);
-		ArtifactResolutionResult result = repositorySystem.resolve(request);
-		if (!result.isSuccess()) {
-			log.warn("Could not resolve " + artifact + ". Skipping.");
+		Optional<Artifact> result = artifactResolver.resolveArtifact(coordinates, localRepository, remoteRepositories);
+		if (!result.isPresent()) {
+			log.warn("Could not resolve " + coordinates + ". Skipping.");
 		}
-		return result.getArtifacts().stream().findFirst();
+		return result;
 	}
 	
 	private TargetPlatformFile createMergedTargetPlatformDefinition(Collection<String> tpFilePaths, Collection<String> targetPlatformFilters)

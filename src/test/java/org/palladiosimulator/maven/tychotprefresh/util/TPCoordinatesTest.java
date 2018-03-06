@@ -12,7 +12,7 @@ public class TPCoordinatesTest {
 	
 	@Test
 	public void testValidReturnsTrueOnValidEntry() {
-		assertThat(TPCoordinates.isValid("a:b:c:d"), is(true));
+		assertThat(TPCoordinates.isValid("a:b:c:d:e"), is(true));
 	}
 	
 	@Test

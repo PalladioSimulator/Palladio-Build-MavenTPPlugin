@@ -2,8 +2,6 @@ package org.palladiosimulator.maven.tychotprefresh;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
@@ -11,9 +9,13 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.palladiosimulator.maven.tychotprefresh.util.IRootProjectFinder;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoTPRefreshLifecycleParticipant")
 public class TychoTPRefreshLifecycleParticipant extends AbstractMavenLifecycleParticipant {
+	
+	@Requirement
+	protected IRootProjectFinder rootProjectFinder;
 	
 	@Requirement
 	protected TPRefresher tpRefresher;
@@ -22,7 +24,7 @@ public class TychoTPRefreshLifecycleParticipant extends AbstractMavenLifecyclePa
 
 	@Override
 	public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
-		MavenProject rootProject = findRootProject(session);
+		MavenProject rootProject = rootProjectFinder.findRootProject(session);
 		if (!registerRootProjectProcessing(rootProject)) {
 			return;
 		}
@@ -38,22 +40,5 @@ public class TychoTPRefreshLifecycleParticipant extends AbstractMavenLifecyclePa
 		processedProjects.add(rootProject);
 		return true;
 	}
-
-	private static MavenProject findRootProject(MavenSession session) throws MavenExecutionException {
-		Collection<MavenProject> rootProjects = session.getAllProjects().stream()
-				.filter(TychoTPRefreshLifecycleParticipant::hasExactlyOneParent).collect(Collectors.toSet());
-		if (rootProjects.size() != 1) {
-			throw new MavenExecutionException(
-					"Could not find root project (projects having exactly one transitive parent).",
-					Optional.ofNullable(session.getCurrentProject()).map(MavenProject::getFile).orElse(null));
-		}
-		return rootProjects.iterator().next();
-	}
-
-	private static boolean hasExactlyOneParent(MavenProject project) {
-		MavenProject parentProject = project.getParent();
-		return parentProject != null && parentProject.getParent() == null;
-	}
-
 
 }
