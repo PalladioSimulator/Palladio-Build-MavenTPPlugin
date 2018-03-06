@@ -9,6 +9,7 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.palladiosimulator.maven.tychotprefresh.impl.TPRefresher;
 import org.palladiosimulator.maven.tychotprefresh.util.IRootProjectFinder;
 
 @Component(role = AbstractMavenLifecycleParticipant.class, hint = "TychoTPRefreshLifecycleParticipant")

@@ -7,15 +7,21 @@ public class Location {
 	private String repositoryLocation;
 	private Collection<Unit> units;
 	private String filter;
+	private boolean refresh;
 
 	public Location(String repositoryLocation, Collection<Unit> units) {
-		this(repositoryLocation, null, units);
+		this(repositoryLocation, null, false, units);
 	}
 	
-	public Location(String repositoryLocation, String filter, Collection<Unit> units) {
+	public Location(Location location) {
+		this(location.repositoryLocation, location.filter, location.refresh, location.units);
+	}
+	
+	public Location(String repositoryLocation, String filter, boolean refresh, Collection<Unit> units) {
 		super();
 		this.repositoryLocation = repositoryLocation;
 		this.filter = filter;
+		this.refresh = refresh;
 		this.units = units;
 	}
 
@@ -33,6 +39,14 @@ public class Location {
 
 	public void setFilter(String filter) {
 		this.filter = filter;
+	}
+
+	public boolean isRefresh() {
+		return refresh;
+	}
+
+	public void setRefresh(boolean refresh) {
+		this.refresh = refresh;
 	}
 
 	public Collection<Unit> getUnits() {

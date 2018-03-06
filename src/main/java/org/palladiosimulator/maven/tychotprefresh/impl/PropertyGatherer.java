@@ -1,8 +1,7 @@
-package org.palladiosimulator.maven.tychotprefresh;
+package org.palladiosimulator.maven.tychotprefresh.impl;
 
 import java.util.Collection;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.maven.project.MavenProject;
@@ -13,7 +12,6 @@ public class PropertyGatherer {
 	private static final String PROPERTY_PREFIX = "org.palladiosimulator.maven.tychotprefresh";
 
 	private static final String PROPERTY_PREFIX_TP_LOCATIONS = String.format("%s.%s", PROPERTY_PREFIX, "tplocation");
-	private static final String PROPERTY_PREFIX_UPDATE_LOCATIONS = String.format("%s.%s", PROPERTY_PREFIX, "tprefresh");
 	private static final String PROPERTY_PREFIX_FILTERS = String.format("%s.%s", PROPERTY_PREFIX, "filter");
 
 	private static final String PROPERTY_PREFIX_TP_PROJECT = String.format("%s.%s", PROPERTY_PREFIX, "tpproject");
@@ -29,23 +27,17 @@ public class PropertyGatherer {
 			"type");
 
 	private final Collection<String> tpTargetLocations;
-	private final Collection<Pattern> tpUpdateLocations;
 	private final Collection<String> tpFilters;
 	private final TPCoordinates tpProjectCoordinates;
 
 	public PropertyGatherer(MavenProject project) {
 		this.tpTargetLocations = readTPTargetLocations(project);
-		this.tpUpdateLocations = readTPUpdateLocations(project);
 		this.tpFilters = readTPFilters(project);
 		this.tpProjectCoordinates = readTPProjectCoordinates(project);
 	}
 
 	public Collection<String> getTpTargetLocations() {
 		return tpTargetLocations;
-	}
-
-	public Collection<Pattern> getTpUpdateLocations() {
-		return tpUpdateLocations;
 	}
 
 	public Collection<String> getTpFilters() {
@@ -59,7 +51,6 @@ public class PropertyGatherer {
 	@Override
 	public String toString() {
 		return toSubString("TP Target Locations:", tpTargetLocations) + "\n"
-				+ toSubString("TP Update Location Patterns:", tpUpdateLocations) + "\n"
 				+ String.format("%s: %s", "TP Project Coordinates: ", tpProjectCoordinates);
 	}
 
@@ -73,11 +64,6 @@ public class PropertyGatherer {
 
 	private static Collection<String> readTPTargetLocations(MavenProject project) {
 		return getPropertiesWithPrefix(project, PROPERTY_PREFIX_TP_LOCATIONS);
-	}
-
-	private static Collection<Pattern> readTPUpdateLocations(MavenProject project) {
-		return getPropertiesWithPrefix(project, PROPERTY_PREFIX_UPDATE_LOCATIONS).stream().map(Pattern::compile)
-				.collect(Collectors.toList());
 	}
 
 	private Collection<String> readTPFilters(MavenProject project) {

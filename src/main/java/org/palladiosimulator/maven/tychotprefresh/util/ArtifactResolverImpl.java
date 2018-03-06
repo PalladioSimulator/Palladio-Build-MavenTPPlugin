@@ -10,7 +10,6 @@ import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.palladiosimulator.maven.tychotprefresh.tp.impl.ArtefactCreationMixin;
 
 @Component(role = IArtifactResolver.class)
 public class ArtifactResolverImpl implements IArtifactResolver, ArtefactCreationMixin {

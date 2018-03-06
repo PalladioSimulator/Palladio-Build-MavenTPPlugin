@@ -5,6 +5,10 @@ public class Unit {
 	private String id;
 	private String version;
 
+	public Unit(Unit unit) {
+		this(unit.getId(), unit.getVersion());
+	}
+	
 	public Unit(String id, String version) {
 		super();
 		this.id = id;

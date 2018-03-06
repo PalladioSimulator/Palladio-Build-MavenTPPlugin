@@ -37,11 +37,12 @@ public class LocationParserTest extends XMLHandlingTestBase {
 	}
 	
 	@Test
-	public void testParseFilteredelement() {
-		Location expected = new Location("http://www.example.org", "test", Arrays.asList(new Unit("abc", "def")));
+	public void testParseFilteredElement() {
+		Location expected = new Location("http://www.example.org", "test", true, Arrays.asList(new Unit("abc", "def")));
 		
 		Element location = doc.createElement("location");
 		location.setAttribute("filter", "test");
+		location.setAttribute("refresh", "true");
 		Element repository = doc.createElement("repository");
 		location.appendChild(repository);
 		repository.setAttribute("location", expected.getRepositoryLocation());
@@ -85,7 +86,7 @@ public class LocationParserTest extends XMLHandlingTestBase {
 	
 	@Test
 	public void testSerializeValidElement() {
-		Location input = new Location("http://www.example.org", "test", Arrays.asList(new Unit("abc", "def")));
+		Location input = new Location("http://www.example.org", "test", true, Arrays.asList(new Unit("abc", "def")));
 		Node actual = LocationParser.create(doc, input);
 		
 		assertThat(actual, is(instanceOf(Element.class)));

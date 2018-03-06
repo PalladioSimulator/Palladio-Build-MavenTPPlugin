@@ -1,8 +1,7 @@
-package org.palladiosimulator.maven.tychotprefresh.tp.impl;
+package org.palladiosimulator.maven.tychotprefresh.util;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.repository.RepositorySystem;
-import org.palladiosimulator.maven.tychotprefresh.util.TPCoordinates;
 
 public interface ArtefactCreationMixin {
 

@@ -17,7 +17,6 @@ public class LocationParser {
 	public static Optional<Location> parse(Node node) {
 		String repositoryLocation = null;
 		Collection<Unit> units = new ArrayList<>();
-		String filter = Optional.ofNullable(node).filter(Element.class::isInstance).map(Element.class::cast).map(e -> e.getAttribute("filter")).filter(StringUtils::isNotBlank).orElse(null);
 		NodeList childNodes = node.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); ++i) {
 			Optional<Element> currentElement = Optional.of(childNodes.item(i)).filter(Element.class::isInstance)
@@ -36,7 +35,10 @@ public class LocationParser {
 		if (StringUtils.isBlank(repositoryLocation) || units.isEmpty()) {
 			return Optional.empty();
 		}
-		return Optional.of(new Location(repositoryLocation, filter, units));
+		
+		String filter = getAttributeValue(node, "filter");
+		boolean refresh = Optional.ofNullable(getAttributeValue(node, "refresh")).map(Boolean::parseBoolean).orElse(false);
+		return Optional.of(new Location(repositoryLocation, filter, refresh, units));
 	}
 	
 	public static Node create(Document doc, Location location) {
@@ -58,6 +60,10 @@ public class LocationParser {
 		location.getUnits().stream().map(unit -> UnitParser.create(doc, unit)).forEach(element::appendChild);
 		
 		return element;
+	}
+	
+	protected static String getAttributeValue(Node node, String attributeName) {
+		return Optional.ofNullable(node).filter(Element.class::isInstance).map(Element.class::cast).map(e -> e.getAttribute(attributeName)).filter(StringUtils::isNotBlank).orElse(null);
 	}
 
 }
