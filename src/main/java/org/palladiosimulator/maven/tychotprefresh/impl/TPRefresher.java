@@ -34,6 +34,10 @@ public class TPRefresher {
 		log.info("Starting target platform refresh for root package " + rootProject.getId());
 
 		PropertyGatherer properties = new PropertyGatherer(rootProject);
+		if (properties.isDisabled()) {
+			log.info("Target platform processing has been disabled.");
+			return;
+		}		
 		log.info("Using following configuration for target platform refresh:\n" + properties);
 		
 		List<TargetPlatformTask> taskSequence = createTasks(session, rootProject, properties);

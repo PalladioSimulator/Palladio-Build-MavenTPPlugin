@@ -47,9 +47,9 @@ public class LocationParser {
 		}
 		
 		Element element = doc.createElement("location");
-		element.setAttribute("includeAllPlatforms", "true");
+		element.setAttribute("includeAllPlatforms", "false");
 		element.setAttribute("includeConfigurePhase", "true");
-		element.setAttribute("includeMode", "slicer");
+		element.setAttribute("includeMode", "planner");
 		element.setAttribute("includeSource", "false");
 		element.setAttribute("type", "InstallableUnit");
 

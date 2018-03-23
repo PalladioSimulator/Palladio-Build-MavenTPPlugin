@@ -92,9 +92,9 @@ public class LocationParserTest extends XMLHandlingTestBase {
 		assertThat(actual, is(instanceOf(Element.class)));
 		Element actualElement = (Element)actual;
 		assertThat(actual.getAttributes().getLength(), is (5));
-		assertThat(actualElement.getAttribute("includeAllPlatforms"), is(equalTo("true")));
+		assertThat(actualElement.getAttribute("includeAllPlatforms"), is(equalTo("false")));
 		assertThat(actualElement.getAttribute("includeConfigurePhase"), is(equalTo("true")));
-		assertThat(actualElement.getAttribute("includeMode"), is(equalTo("slicer")));
+		assertThat(actualElement.getAttribute("includeMode"), is(equalTo("planner")));
 		assertThat(actualElement.getAttribute("includeSource"), is(equalTo("false")));
 		assertThat(actualElement.getAttribute("type"), is(equalTo("InstallableUnit")));
 		assertThat(actualElement.getAttribute("filter"), isEmptyOrNullString());

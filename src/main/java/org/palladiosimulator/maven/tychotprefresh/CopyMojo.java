@@ -54,9 +54,13 @@ public class CopyMojo extends AbstractMojo {
 			throw new MojoExecutionException("Unable to determine root project.", e);
 		}
 		
+		PropertyGatherer properties = new PropertyGatherer(project);
+		if (properties.isDisabled()) {
+			return;
+		}
+		
 		getLog().info("Copying target platform definition.");
 
-		PropertyGatherer properties = new PropertyGatherer(project);
 		TPCoordinates tpCoordinates = properties.getTpProjectCoordinates();
 		Optional<Artifact> resolvedTP = artifactResolver.resolveArtifact(tpCoordinates, session.getLocalRepository(),
 				project.getRemoteArtifactRepositories());

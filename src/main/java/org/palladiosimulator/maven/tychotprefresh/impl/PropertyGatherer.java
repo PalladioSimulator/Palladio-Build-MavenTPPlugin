@@ -1,6 +1,8 @@
 package org.palladiosimulator.maven.tychotprefresh.impl;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -25,15 +27,28 @@ public class PropertyGatherer {
 			"classifier");
 	private static final String PROPERTY_KEY_TP_PROJECT_TYPE = String.format("%s.%s", PROPERTY_PREFIX_TP_PROJECT,
 			"type");
+	private static final String PROPERTY_KEY_DISABLE = String.format("%s.%s", PROPERTY_PREFIX, "disable");
 
 	private final Collection<String> tpTargetLocations;
 	private final Collection<String> tpFilters;
 	private final TPCoordinates tpProjectCoordinates;
+	private final boolean tpDisable;
 
 	public PropertyGatherer(MavenProject project) {
-		this.tpTargetLocations = readTPTargetLocations(project);
-		this.tpFilters = readTPFilters(project);
-		this.tpProjectCoordinates = readTPProjectCoordinates(project);
+		this.tpDisable = isDisabled(project);
+		if (this.tpDisable) {
+			this.tpTargetLocations = Collections.emptyList();
+			this.tpFilters = Collections.emptyList();
+			this.tpProjectCoordinates = new TPCoordinates(null, null, null, null, null);
+		} else {
+			this.tpTargetLocations = readTPTargetLocations(project);
+			this.tpFilters = readTPFilters(project);
+			this.tpProjectCoordinates = readTPProjectCoordinates(project);	
+		}
+	}
+
+	public boolean isDisabled() {
+		return tpDisable;
 	}
 
 	public Collection<String> getTpTargetLocations() {
@@ -69,6 +84,10 @@ public class PropertyGatherer {
 	private Collection<String> readTPFilters(MavenProject project) {
 		return getPropertiesWithPrefix(project, PROPERTY_PREFIX_FILTERS);
 	}
+	
+	private static boolean isDisabled(MavenProject project) {
+		return Optional.ofNullable(readProperty(project, PROPERTY_KEY_DISABLE)).map(Boolean::valueOf).orElse(false);
+	}
 
 	private static TPCoordinates readTPProjectCoordinates(MavenProject project) {
 		String groupId = readMandatoryProperty(project, PROPERTY_KEY_TP_PROJECT_GROUPID);
@@ -83,6 +102,10 @@ public class PropertyGatherer {
 		if (!project.getProperties().containsKey(key)) {
 			throw new IllegalStateException("The property " + key + " is mandatory, but not available.");
 		}
+		return readProperty(project, key);
+	}
+	
+	private static String readProperty(MavenProject project, String key) {
 		return project.getProperties().getProperty(key);
 	}
 
