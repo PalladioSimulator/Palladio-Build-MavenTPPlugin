@@ -17,6 +17,7 @@ import org.apache.commons.lang3.Validate;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.artifact.ProjectArtifact;
 import org.palladiosimulator.maven.tychotprefresh.tasks.TargetPlatformTaskBase;
 import org.palladiosimulator.maven.tychotprefresh.tasks.TaskDependencies;
 import org.palladiosimulator.maven.tychotprefresh.tasks.TaskExecutionException;
@@ -73,6 +74,9 @@ public class TargetPlatformAttacher extends TargetPlatformTaskBase implements Ar
 			FileUtils.forceDeleteOnExit(tempDir);
 			File pomFile = new File(tempDir, "pom.xml");
 			mp.setFile(pomFile);
+			
+			ProjectArtifact pa = new ProjectArtifact(mp);
+			mp.setArtifact(pa);
 
 			File tpFile = new File(tempDir, projectCoordinates.getClassifier() + "." + projectCoordinates.getType());
 			FileUtils.write(tpFile, targetPlatformDefinitionContent, StandardCharsets.UTF_8);
