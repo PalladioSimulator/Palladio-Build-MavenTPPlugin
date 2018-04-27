@@ -28,10 +28,13 @@ public class PropertyGatherer {
 	private static final String PROPERTY_KEY_TP_PROJECT_TYPE = String.format("%s.%s", PROPERTY_PREFIX_TP_PROJECT,
 			"type");
 	private static final String PROPERTY_KEY_DISABLE = String.format("%s.%s", PROPERTY_PREFIX, "disable");
+	private static final String PROPERTY_KEY_TP_COPY_DESTINATION = "targetPlatform.target";
+	private static final String PROPERTY_DEFAULT_TP_COPY_DESTINATION = "tp.target";
 
 	private final Collection<String> tpTargetLocations;
 	private final Collection<String> tpFilters;
 	private final TPCoordinates tpProjectCoordinates;
+	private final String tpCopyDestinationFileName;
 	private final boolean tpDisable;
 
 	public PropertyGatherer(MavenProject project) {
@@ -40,10 +43,12 @@ public class PropertyGatherer {
 			this.tpTargetLocations = Collections.emptyList();
 			this.tpFilters = Collections.emptyList();
 			this.tpProjectCoordinates = new TPCoordinates(null, null, null, null, null);
+			this.tpCopyDestinationFileName = null;
 		} else {
 			this.tpTargetLocations = readTPTargetLocations(project);
 			this.tpFilters = readTPFilters(project);
 			this.tpProjectCoordinates = readTPProjectCoordinates(project);	
+			this.tpCopyDestinationFileName = readTPCopyDestinationFileName(project);
 		}
 	}
 
@@ -63,6 +68,10 @@ public class PropertyGatherer {
 		return tpProjectCoordinates;
 	}
 
+	public String getTpCopyDestinationFileName() {
+		return tpCopyDestinationFileName;
+	}
+	
 	@Override
 	public String toString() {
 		return toSubString("TP Target Locations:", tpTargetLocations) + "\n"
@@ -96,6 +105,10 @@ public class PropertyGatherer {
 		String classifier = readMandatoryProperty(project, PROPERTY_KEY_TP_PROJECT_CLASSIFIER);
 		String type = readMandatoryProperty(project, PROPERTY_KEY_TP_PROJECT_TYPE);
 		return new TPCoordinates(groupId, artifactId, version, classifier, type);
+	}
+	
+	private String readTPCopyDestinationFileName(MavenProject project) {
+		return Optional.ofNullable(readProperty(project, PROPERTY_KEY_TP_COPY_DESTINATION)).orElse(PROPERTY_DEFAULT_TP_COPY_DESTINATION);
 	}
 
 	private static String readMandatoryProperty(MavenProject project, String key) {

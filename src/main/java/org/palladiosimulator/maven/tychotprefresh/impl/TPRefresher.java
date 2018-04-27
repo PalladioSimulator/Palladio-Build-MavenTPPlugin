@@ -15,6 +15,7 @@ import org.palladiosimulator.maven.tychotprefresh.tasks.TargetPlatformTask;
 import org.palladiosimulator.maven.tychotprefresh.tasks.TaskDependenciesInitializable;
 import org.palladiosimulator.maven.tychotprefresh.tasks.TaskExecutionException;
 import org.palladiosimulator.maven.tychotprefresh.tasks.impl.TargetPlatformAttacher;
+import org.palladiosimulator.maven.tychotprefresh.tasks.impl.TargetPlatformCopier;
 import org.palladiosimulator.maven.tychotprefresh.tasks.impl.TargetPlatformFilter;
 import org.palladiosimulator.maven.tychotprefresh.tasks.impl.TargetPlatformInitializer;
 import org.palladiosimulator.maven.tychotprefresh.tasks.impl.TargetPlatformMerger;
@@ -57,6 +58,7 @@ public class TPRefresher {
 		taskSequence.add(new TargetPlatformFilter(dependencies, properties.getTpFilters()));
 		taskSequence.add(new TargetPlatformUpdater(dependencies));
 		taskSequence.add(new TargetPlatformMerger(dependencies));
+		taskSequence.add(new TargetPlatformCopier(dependencies, rootProject, properties.getTpCopyDestinationFileName()));
 		taskSequence.add(new TargetPlatformAttacher(dependencies, properties.getTpProjectCoordinates()));
 		return taskSequence;
 	}
