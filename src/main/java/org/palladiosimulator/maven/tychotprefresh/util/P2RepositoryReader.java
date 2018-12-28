@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.osgi.framework.Version;
+import org.osgi.util.promise.PromiseFactory;
 
 import aQute.bnd.http.HttpClient;
 import aQute.p2.api.Artifact;
@@ -29,8 +30,8 @@ public class P2RepositoryReader implements Closeable {
 
 	public Map<String, Set<Version>> getArtifacts() throws IOException {
 		try (HttpClient client = new HttpClient()) {
-			P2Impl p2 = new P2Impl(client, repositoryURI, executor);
-			Collection<Artifact> artifacts = p2.getArtifacts();
+			P2Impl p2 = new P2Impl(client, repositoryURI, new PromiseFactory(executor));
+			Collection<Artifact> artifacts = p2.getAllArtifacts();
 			return artifacts.stream()
 					.collect(Collectors.groupingBy(a -> a.id, Collectors.mapping(a -> a.version, Collectors.toSet())));
 		} catch (Exception e) {
