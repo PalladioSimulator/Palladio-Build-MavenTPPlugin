@@ -5,7 +5,7 @@
 	<groupId>org.palladiosimulator</groupId>
 	<artifactId>tycho-tp-refresh-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>0.2.4-SNAPSHOT</version>
+	<version>0.2.4</version>
 
 	<name>Tycho Target Platform Refresh Plugin</name>
 	<description>A plugin/extension that builds a target platform based on existing target platform definitions. Optionally, it can update the versions mentioned in the definitions to the latest version available.</description>
