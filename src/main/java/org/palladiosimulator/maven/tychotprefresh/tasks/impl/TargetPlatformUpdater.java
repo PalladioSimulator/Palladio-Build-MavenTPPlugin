@@ -67,8 +67,9 @@ public class TargetPlatformUpdater extends TargetPlatformTaskBase {
 			return updatedLocation;
 
 		} catch (URISyntaxException | IOException e) {
+			Throwable causeToReport = getLog().isDebugEnabled() ? e : null;
 			getLog().warn("Unable to retrieve repository contents. Skipping version update for location "
-					+ repositoryLocation);
+					+ repositoryLocation, causeToReport);
 			return locationToUpdate;
 		}
 	}
