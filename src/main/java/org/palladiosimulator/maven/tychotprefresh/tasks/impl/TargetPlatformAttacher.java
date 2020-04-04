@@ -3,11 +3,8 @@ package org.palladiosimulator.maven.tychotprefresh.tasks.impl;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -15,9 +12,9 @@ import javax.xml.transform.TransformerException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.artifact.ProjectArtifact;
+import org.apache.maven.artifact.DefaultArtifact;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import org.apache.maven.artifact.installer.ArtifactInstallationException;
 import org.palladiosimulator.maven.tychotprefresh.tasks.TargetPlatformTaskBase;
 import org.palladiosimulator.maven.tychotprefresh.tasks.TaskDependencies;
 import org.palladiosimulator.maven.tychotprefresh.tasks.TaskExecutionException;
@@ -28,12 +25,13 @@ import org.palladiosimulator.maven.tychotprefresh.util.TPCoordinates;
 
 public class TargetPlatformAttacher extends TargetPlatformTaskBase implements ArtefactCreationMixin {
 
-	private static final String PACKAGING_TYPE_ECLIPSE_TARGET_DEFINITION = "eclipse-target-definition";
 	private TPCoordinates projectCoordinates;
+	private final File tmpDirectory;
 	
-	public TargetPlatformAttacher(TaskDependencies dependencies, TPCoordinates projectCoordinates) {
+	public TargetPlatformAttacher(TaskDependencies dependencies, TPCoordinates projectCoordinates, File tmpDirectory) {
 		super(dependencies, "Attaching target platform definition to build.");
 		this.projectCoordinates = projectCoordinates;
+		this.tmpDirectory = tmpDirectory;
 	}
 
 	@Override
@@ -61,34 +59,15 @@ public class TargetPlatformAttacher extends TargetPlatformTaskBase implements Ar
 	}
 
 	protected void attachTargetPlatformDefinitionProject(String targetPlatformDefinitionContent) throws IOException {
-		getLog().info("Creating virtual project for merged target platform.");
+		getLog().info("Installing merged target platform into local repository.");
 		try {
-			MavenProject mp = new MavenProject();
-			mp.setGroupId(projectCoordinates.getGroupId());
-			mp.setArtifactId(projectCoordinates.getArtifactId());
-			mp.setVersion(projectCoordinates.getVersion());
-			mp.setPackaging(PACKAGING_TYPE_ECLIPSE_TARGET_DEFINITION);
-
-			Path tempDirPath = java.nio.file.Files.createTempDirectory("tp_tmp");
-			File tempDir = tempDirPath.toFile();
-			FileUtils.forceDeleteOnExit(tempDir);
-			File pomFile = new File(tempDir, "pom.xml");
-			mp.setFile(pomFile);
-			
-			ProjectArtifact pa = new ProjectArtifact(mp);
-			mp.setArtifact(pa);
-
-			File tpFile = new File(tempDir, projectCoordinates.getClassifier() + "." + projectCoordinates.getType());
+			File tpFile = new File(tmpDirectory, "merged-tp.target");
 			FileUtils.write(tpFile, targetPlatformDefinitionContent, StandardCharsets.UTF_8);
-			Artifact tpArtifact = createTargetArtifact(getDependencies().getRepositorySystem(), projectCoordinates);
-			tpArtifact.setFile(tpFile);
-			mp.addAttachedArtifact(tpArtifact);
-
-			MavenSession session = getDependencies().getMavenSession();
-			List<MavenProject> projects = new ArrayList<>(session.getProjects());
-			projects.add(mp);
-			session.setProjects(projects);
-		} catch (IOException e) {
+			DefaultArtifactHandler artifactHandler = new DefaultArtifactHandler();
+			artifactHandler.setExtension(projectCoordinates.getType());
+			Artifact tpArtifact = new DefaultArtifact(projectCoordinates.getGroupId(), projectCoordinates.getArtifactId(), projectCoordinates.getVersion(), DefaultArtifact.SCOPE_COMPILE, projectCoordinates.getType(), projectCoordinates.getClassifier(), artifactHandler);
+			getDependencies().getArtifactInstaller().install(tpFile, tpArtifact, getDependencies().getLocalRepository());
+		} catch (IOException | ArtifactInstallationException e) {
 			throw new IOException("failed to create temporary tp", e);
 		}
 	}
