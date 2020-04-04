@@ -1,5 +1,6 @@
 package org.palladiosimulator.maven.tychotprefresh.impl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,9 +50,9 @@ public class TPRefresher {
 
 	protected List<TargetPlatformTask> createTasks(MavenSession session, MavenProject rootProject,
 			PropertyGatherer properties) {
-		dependencies.setMavenSession(session);
 		dependencies.setRemoteRepositories(rootProject.getRemoteArtifactRepositories());
 		dependencies.setLocalRepository(session.getLocalRepository());
+		File tmpDir = new File(rootProject.getBuild().getDirectory());
 		
 		List<TargetPlatformTask> taskSequence = new ArrayList<>();
 		taskSequence.add(new TargetPlatformInitializer(dependencies, properties.getTpTargetLocations()));
@@ -59,7 +60,7 @@ public class TPRefresher {
 		taskSequence.add(new TargetPlatformUpdater(dependencies));
 		taskSequence.add(new TargetPlatformMerger(dependencies));
 		taskSequence.add(new TargetPlatformCopier(dependencies, rootProject, properties.getTpCopyDestinationFileName()));
-		taskSequence.add(new TargetPlatformAttacher(dependencies, properties.getTpProjectCoordinates()));
+		taskSequence.add(new TargetPlatformAttacher(dependencies, properties.getTpProjectCoordinates(), tmpDir));
 		return taskSequence;
 	}
 	
