@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.execution.MavenSession;
@@ -57,7 +58,7 @@ public class TPRefresher {
 		List<TargetPlatformTask> taskSequence = new ArrayList<>();
 		taskSequence.add(new TargetPlatformInitializer(dependencies, properties.getTpTargetLocations()));
 		taskSequence.add(new TargetPlatformFilter(dependencies, properties.getTpFilters()));
-		taskSequence.add(new TargetPlatformUpdater(dependencies));
+		taskSequence.add(new TargetPlatformUpdater(dependencies, Optional.ofNullable(session.getSettings().getActiveProxy())));
 		taskSequence.add(new TargetPlatformMerger(dependencies));
 		taskSequence.add(new TargetPlatformCopier(dependencies, rootProject, properties.getTpCopyDestinationFileName()));
 		taskSequence.add(new TargetPlatformAttacher(dependencies, properties.getTpProjectCoordinates(), tmpDir));

@@ -29,7 +29,7 @@ public class TychoTPRefreshLifecycleParticipant extends AbstractMavenLifecyclePa
 		if (!registerRootProjectProcessing(rootProject)) {
 			return;
 		}
-		
+
 		tpRefresher.performRefresh(session, rootProject);
 		super.afterProjectsRead(session);
 	}
