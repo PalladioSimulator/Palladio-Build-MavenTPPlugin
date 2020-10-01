@@ -7,11 +7,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.maven.settings.Proxy;
 import org.osgi.framework.Version;
 import org.palladiosimulator.maven.tychotprefresh.tasks.TargetPlatformTaskBase;
 import org.palladiosimulator.maven.tychotprefresh.tasks.TaskDependencies;
@@ -23,9 +25,11 @@ import org.palladiosimulator.maven.tychotprefresh.util.P2RepositoryReader;
 public class TargetPlatformUpdater extends TargetPlatformTaskBase {
 
 	private static final String TP_FEATURE_ID_POSTFIX = ".feature.group";
+	private Optional<Proxy> proxy;
 	
-	public TargetPlatformUpdater(TaskDependencies dependencies) {
+	public TargetPlatformUpdater(TaskDependencies dependencies, Optional<Proxy> proxy) {
 		super(dependencies, "Updating target platform definitions.");
+		this.proxy = proxy;
 	}
 
 	@Override
@@ -54,7 +58,7 @@ public class TargetPlatformUpdater extends TargetPlatformTaskBase {
 		
 		String repositoryLocation = updatedLocation.getRepositoryLocation();
 		getLog().info("Updating artifact versions from location " + repositoryLocation);
-		try (P2RepositoryReader reader = new P2RepositoryReader(repositoryLocation)) {
+		try (P2RepositoryReader reader = new P2RepositoryReader(repositoryLocation, proxy)) {
 
 			Map<String, Set<Version>> queryResult = reader.getArtifacts();
 
