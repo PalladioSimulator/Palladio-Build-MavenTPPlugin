@@ -1,3 +1,7 @@
+Archived as it is no longer in use, and the build of Palladio has migrated to only using default Maven plugins.
+
+For more information on how [target platform definitions](https://github.com/PalladioSimulator/Palladio-Build-TargetPlatforms) and [parent poms](https://github.com/PalladioSimulator/Palladio-Build-MavenParent) are used, refer to the linked repositories.
+
 # Tycho Target Platform Refresh Plugin
 
 The refresh plugin is an extension of the maven lifecycle that builds the target platform for a tycho-based build dynamically before the actual dependency resolution. The plugin provides
